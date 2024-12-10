@@ -31,7 +31,7 @@ class PathLogger():
         path_logger.addHandler(handler)
         for handle in path_logger.handlers:
             handle.setFormatter(formatter)
-            handle.addFilter(time_interval_filter)
+            # handle.addFilter(time_interval_filter)
 
         self.logger = path_logger
 

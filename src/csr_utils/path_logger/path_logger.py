@@ -22,7 +22,8 @@ class PathLogger():
         path_logger = logging.getLogger(name=name)
         path_logger.setLevel(logging.INFO)
         formatter = PycharmFormatter(
-            '%(relative_path)s:%(lineno)s %(asctime)s %(interval).2fs %(level_name)01s %(message)s')
+            '%(relative_path)s:%(lineno)s %(asctime)s %(interval).2fs %(level_name)01s %(message)s'
+        )
 
         time_interval_filter = TimeIntervalFilter()
         path_logger.addFilter(time_interval_filter)

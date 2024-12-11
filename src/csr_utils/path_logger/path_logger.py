@@ -1,6 +1,8 @@
 from __future__ import annotations
 import logging
+import threading
 from logging import Logger
+from time import time
 from typing import Union, Dict
 
 from csr_utils.path_logger.pycharm_formatter import PycharmFormatter
@@ -15,10 +17,20 @@ class PathLogger():
         self.name = name
         self.last = None
 
-    def init_logger(self, name):
+        self.debug_level = logging.DEBUG
+        self.verbose_level = 9
+        self.trace_level = 8
+
+    def init_logger(self, name=None):
         """
         延迟初始化logger，避免影响其他的logger
+
+        如果默认，会按照线程号与时间戳生成日志
+        如果name='' 生成根logger
         """
+
+        if name is None:
+            name = str(threading.current_thread().ident) + str(time())
         path_logger = logging.getLogger(name=name)
         path_logger.setLevel(logging.INFO)
         formatter = PycharmFormatter(
@@ -47,7 +59,8 @@ class PathLogger():
             self.init_logger(name=self.name)
         return self.logger
 
-    def log(self, msg, level=logging.NOTSET, *args, **kwargs):
+    def log(self, msg, level=None, *args, **kwargs):
+        level = level or self.verbose_level
         self._get_logger().log(level, msg, stacklevel=2, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
@@ -70,7 +83,7 @@ class PathLogger():
             if level == 1:
                 level = logging.DEBUG
             elif level == 2:
-                level = logging.NOTSET
+                level = self.verbose_level
             else:
                 ...
         elif isinstance(level, str):

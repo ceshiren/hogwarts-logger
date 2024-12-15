@@ -3,7 +3,7 @@ import logging
 import threading
 from logging import Logger
 from time import time
-from typing import Union, Dict
+from typing import Union, Dict, Optional
 
 from csr_utils.path_logger.pycharm_formatter import PycharmFormatter
 from csr_utils.path_logger.time_interval_filter import TimeIntervalFilter
@@ -13,13 +13,15 @@ class PathLogger():
     logger_dict: Dict[str, PathLogger] = {}
 
     def __init__(self, name=None):
-        self.logger = None
+        self.logger: Optional[Logger] = None
         self.name = name
         self.last = None
 
-        self.debug_level = logging.DEBUG
-        self.verbose_level = 9
-        self.trace_level = 8
+        self._debug_level = logging.DEBUG
+        # self._verbose_level = 9
+        self._trace_level = 8
+        self.log_level_name: Optional[str] = None
+        self.log_level: Optional[int] = None
 
     def init_logger(self, name=None):
         """
@@ -60,8 +62,11 @@ class PathLogger():
         return self.logger
 
     def log(self, msg, level=None, *args, **kwargs):
-        level = level or self.verbose_level
-        self._get_logger().log(level, msg, stacklevel=2, *args, **kwargs)
+        level = level or self._trace_level
+        self._get_logger().log(level=level, msg=msg, stacklevel=2, *args, **kwargs)
+
+    def trace(self, msg, *args, **kwargs):
+        self.log(msg, level=self._trace_level, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
         self._get_logger().debug(msg, stacklevel=2, *args, **kwargs)
@@ -79,23 +84,30 @@ class PathLogger():
         self._get_logger().critical(msg, stacklevel=2, *args, **kwargs)
 
     def set_level(self, level: Union[int, str]):
+        """
+        1 = debug 2=trace 3=notset
+        """
+
         if isinstance(level, int):
-            if level == 1:
-                level = logging.DEBUG
-            elif level == 2:
-                level = self.verbose_level
+            self.log_level = (logging.INFO - level * 10) or self._trace_level
+        elif isinstance(level, str):
+            level_name = level.lower()
+            if level_name == 'debug':
+                self.log_level = self._debug_level
+            elif level_name == 'trace':
+                self.log_level = self._trace_level
             else:
                 ...
-        elif isinstance(level, str):
-            level = level.upper()
 
-        self._get_logger().setLevel(level)
-        self._get_logger().debug(f'log level =  {logging.getLevelName(level)}')
+        self._get_logger().setLevel(self.log_level)
 
         # 控制台的输出，pytest是可以控制的, logger的handler的level默认是NOSET
 
         # for handle in self.logger.handlers:
         #     handle.setLevel(level)
+
+    def get_level(self):
+        return self._get_logger().getEffectiveLevel()
 
     def get_log_actions(self):
         return [

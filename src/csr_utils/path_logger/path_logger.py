@@ -96,6 +96,8 @@ class PathLogger():
                 self.log_level = self._debug_level
             elif level_name == 'trace':
                 self.log_level = self._trace_level
+            elif level_name == 'info':
+                self.log_level = logging.INFO
             else:
                 ...
 

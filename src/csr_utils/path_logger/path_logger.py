@@ -12,6 +12,13 @@ from csr_utils.path_logger.time_interval_filter import TimeIntervalFilter
 class PathLogger():
     logger_dict: Dict[str, PathLogger] = {}
 
+    debug_formatter = PycharmFormatter(
+        '%(relative_path)s:%(lineno)s:%(invoke)s %(asctime)s %(interval).2f %(level_name)01s %(message)s'
+    )
+    info_formatter = PycharmFormatter(
+        '%(filename)s:%(lineno)s:%(invoke)s %(asctime)s %(interval).2f %(level_name)01s %(message)s'
+    )
+
     def __init__(self, name=None):
         self.logger: Optional[Logger] = None
         self.name = name
@@ -21,7 +28,7 @@ class PathLogger():
         # self._verbose_level = 9
         self._trace_level = 8
         self.log_level_name: Optional[str] = None
-        self.log_level: Optional[int] = None
+        self.log_level: Optional[int] = logging.INFO
 
     def init_logger(self, name=None):
         """
@@ -35,9 +42,11 @@ class PathLogger():
             name = str(threading.current_thread().ident) + str(time())
         path_logger = logging.getLogger(name=name)
         path_logger.setLevel(logging.INFO)
-        formatter = PycharmFormatter(
-            '%(relative_path)s:%(lineno)s %(asctime)s %(interval).2f %(level_name)01s %(message)s'
-        )
+
+        if self.log_level <= logging.DEBUG:
+            formatter = self.debug_formatter
+        else:
+            formatter = self.info_formatter
 
         time_interval_filter = TimeIntervalFilter()
         path_logger.addFilter(time_interval_filter)

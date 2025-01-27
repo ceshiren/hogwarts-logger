@@ -1,3 +1,4 @@
+import inspect
 import logging
 import os
 from logging import LogRecord
@@ -8,6 +9,25 @@ class PycharmFormatter(logging.Formatter):
     """
     增加在pycharm里key直接点击文件路径跳转到代码位置的功能
     """
+
+    def get_parrent(self, record: LogRecord):
+        # 获取当前堆栈信息
+        stack = inspect.stack()
+        for i, s in enumerate(stack):
+            if s.filename.rpartition(os.sep)[-1] == record.filename and s.lineno == record.lineno:
+                # 被调用方
+                index = i + 1
+                break
+        else:
+            index = None
+
+        # 检查是否有父级调用函数
+
+        if index and record.levelno <= logging.DEBUG:
+            invoke = f'{stack[index].function}:{record.funcName}'  # 获取父级调用函数名
+        else:
+            invoke = f'{record.funcName}'
+        return invoke
 
     def format(self, record: LogRecord):
         # todo: 仍旧有部分路径无法跳转
@@ -24,8 +44,8 @@ class PycharmFormatter(logging.Formatter):
             relative_path = path.relative_to(cwd)
         else:
             relative_path = record.pathname
-
         record.relative_path = relative_path
+        record.invoke = self.get_parrent(record)
         record.level_name = record.levelname[0]
         if not hasattr(record, 'interval'):
             record.interval = 0  # 如果没有 interval，设置为 0

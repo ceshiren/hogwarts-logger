@@ -10,7 +10,7 @@ class PycharmFormatter(logging.Formatter):
     增加在pycharm里key直接点击文件路径跳转到代码位置的功能
     """
 
-    def get_parrent(self, record: LogRecord):
+    def get_invoke(self, record: LogRecord):
         # 获取当前堆栈信息
         stack = inspect.stack()
         for i, s in enumerate(stack):
@@ -23,7 +23,7 @@ class PycharmFormatter(logging.Formatter):
 
         # 检查是否有父级调用函数
 
-        if index and record.levelno <= logging.DEBUG:
+        if index:
             invoke = f'{stack[index].function}:{record.funcName}'  # 获取父级调用函数名
         else:
             invoke = f'{record.funcName}'
@@ -45,7 +45,12 @@ class PycharmFormatter(logging.Formatter):
         else:
             relative_path = record.pathname
         record.relative_path = relative_path
-        record.invoke = self.get_parrent(record)
+
+        if record.levelno <= logging.DEBUG:
+            record.invoke = self.get_invoke(record)
+        else:
+            record.invoke = record.funcName
+
         record.level_name = record.levelname[0]
         if not hasattr(record, 'interval'):
             record.interval = 0  # 如果没有 interval，设置为 0

@@ -18,6 +18,7 @@ class PathLogger():
     info_formatter = PycharmFormatter(
         '%(filename)s:%(lineno)s:%(invoke)s %(asctime)s %(interval).2f %(level_name)01s %(message)s'
     )
+    raw_formatter = logging.Formatter("%(message)s")
 
     def __init__(self, name=None):
         self.logger: Optional[Logger] = None
@@ -129,3 +130,7 @@ class PathLogger():
             self.error,
             self.critical,
         ]
+
+    def enable_raw_log(self):
+        for handler in self.logger.handlers:
+            handler.setFormatter(self.raw_formatter)

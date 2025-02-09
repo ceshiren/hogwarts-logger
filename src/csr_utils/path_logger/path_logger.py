@@ -1,5 +1,6 @@
 from __future__ import annotations
 import logging
+import sys
 import threading
 from logging import Logger
 from time import time
@@ -52,7 +53,8 @@ class PathLogger():
         time_interval_filter = TimeIntervalFilter()
         path_logger.addFilter(time_interval_filter)
 
-        handler = logging.StreamHandler()
+        # 默认会输出到stderr，需要指定下
+        handler = logging.StreamHandler(sys.stdout)
         path_logger.addHandler(handler)
         for handle in path_logger.handlers:
             handle.setFormatter(formatter)
@@ -73,7 +75,13 @@ class PathLogger():
 
     def log(self, msg, level=None, *args, **kwargs):
         level = level or self._trace_level
-        self._get_logger().log(level=level, msg=msg, stacklevel=2, *args, **kwargs)
+        self._get_logger().log(
+            level=level,
+            msg=msg,
+            stacklevel=2,
+            *args,
+            **kwargs
+        )
 
     def trace(self, msg, *args, **kwargs):
         self.log(msg, level=self._trace_level, *args, **kwargs)
@@ -132,5 +140,8 @@ class PathLogger():
         ]
 
     def enable_raw_log(self):
+        """
+        info级别建议不输出代码行数
+        """
         for handler in self.logger.handlers:
             handler.setFormatter(self.raw_formatter)

@@ -1,0 +1,30 @@
+[build-system]
+requires = [
+    "setuptools",
+    "setuptools-scm",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hogwarts-logger"
+authors = [
+    { name = "霍格沃兹测试开发学社 https://ceshiren.com" },
+]
+description = "用于测试框架的日志封装"
+readme = "README.md"
+requires-python = ">= 3.9"
+dynamic = ["version", "dependencies"]
+
+[project.urls]
+Homepage = "ceshiren.com"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*", "tests.*"]
+
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools_scm]

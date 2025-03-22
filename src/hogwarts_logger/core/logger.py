@@ -6,19 +6,23 @@ from logging import Logger
 from time import time
 from typing import Union, Dict, Optional
 
-from csr_utils.path_logger.pycharm_formatter import PycharmFormatter
-from csr_utils.path_logger.time_interval_filter import TimeIntervalFilter
+from hogwarts_logger.core.pycharm_formatter import PycharmFormatter
+from hogwarts_logger.core.time_interval_filter import TimeIntervalFilter
 
 
-class PathLogger():
-    logger_dict: Dict[str, PathLogger] = {}
+class Logger():
+    logger_dict: Dict[str, Logger] = {}
 
+    info_formatter = PycharmFormatter(
+        '%(relative_path)s:%(lineno)s:%(invoke)s %(asctime)s %(interval).2f %(level_name)01s %(message)s'
+    )
     debug_formatter = PycharmFormatter(
         '%(relative_path)s:%(lineno)s:%(invoke)s %(asctime)s %(interval).2f %(level_name)01s %(message)s'
     )
-    info_formatter = PycharmFormatter(
-        '%(filename)s:%(lineno)s:%(invoke)s %(asctime)s %(interval).2f %(level_name)01s %(message)s'
+    log_formatter = PycharmFormatter(
+        '%(relative_path)s:%(lineno)s:%(invoke)s %(asctime)s %(interval).2f %(level_name)01s %(message)s'
     )
+
     raw_formatter = logging.Formatter("%(message)s")
 
     def __init__(self, name=None):
@@ -65,7 +69,7 @@ class PathLogger():
     @classmethod
     def get_instance(cls, name=None):
         if cls.logger_dict.get(name) is None:
-            cls.logger_dict[name] = PathLogger(name)
+            cls.logger_dict[name] = Logger(name)
         return cls.logger_dict[name]
 
     def _get_logger(self) -> logging.Logger:
@@ -145,3 +149,8 @@ class PathLogger():
         """
         for handler in self.logger.handlers:
             handler.setFormatter(self.raw_formatter)
+
+    @classmethod
+    def get_logger_name_list(cls) -> Logger:
+        name_list = logging.Logger.manager.loggerDict
+        return name_list

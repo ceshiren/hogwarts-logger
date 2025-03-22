@@ -49,13 +49,7 @@ class PycharmFormatter(logging.Formatter):
         # else:
         #     relative_path = record.pathname
         record.relative_path = os.path.relpath(record.pathname, self.cwd)
-
-        if record.levelno <= logging.DEBUG:
-            # 小于debug展示上层的trace调用
-            record.invoke = self.get_invoke(record)
-        else:
-            record.invoke = record.funcName
-
+        record.invoke = self.get_invoke(record)
         record.level_name = record.levelname[0]
         if not hasattr(record, 'interval'):
             record.interval = 0  # 如果没有 interval，设置为 0

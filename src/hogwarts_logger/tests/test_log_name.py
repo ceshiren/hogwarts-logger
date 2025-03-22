@@ -2,8 +2,6 @@ import inspect
 
 from hogwarts_logger import Logger
 
-print('module')
-
 
 def get_invoker_module_name():
     for frame in inspect.stack():
@@ -13,9 +11,6 @@ def get_invoker_module_name():
             module = inspect.getmodule(frame.function, _filename=frame.filename)
             module_name = module.__name__.partition('.')[0]
         print(module_name)
-
-
-print('---')
 
 
 def test_logger_name():

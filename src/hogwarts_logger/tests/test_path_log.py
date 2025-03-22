@@ -6,7 +6,7 @@ from time import sleep
 import pytest
 
 from hogwarts_logger import *
-from hogwarts_logger.core.logger import Logger
+from hogwarts_logger import Logger
 
 
 @pytest.fixture
